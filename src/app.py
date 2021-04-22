@@ -10,6 +10,9 @@ from api.utils import APIException, generate_sitemap
 from api.models import db
 from api.routes import api
 from api.admin import setup_admin
+from models import db, User
+from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
+import json
 #from models import Person
 
 ENV = os.getenv("FLASK_ENV")
@@ -56,6 +59,38 @@ def serve_any_other_file(path):
     response = send_from_directory(static_file_dir, path)
     response.cache_control.max_age = 0 # avoid cache memory
     return response
+
+#INICIO DE PROYECTO
+@app.route("/login", methods=["POST"])
+def login():
+    email=request.json.get("email", None)
+    password=request.json.get("password", None)
+
+    user=User.query.filter_by(email=email, password=password).first()
+    if user is None:
+        return jsonify ({"message:" "Bad user or password"})
+
+    access_token = create_access_token(identity=user.id)
+    return jsonify({"token": access_token})
+
+@app.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    current_user_id=get_jwt_identity()
+    user=User.query.get(current_user_id)
+    return jsonify({"id":user.id, "email":user.email})
+
+@app.route("/createUser", methods=["POST"])
+def create_User():
+    email=request.json.get("email", None)
+    password=request.json.get("password", None)
+    name=request.json.get("name", None)
+    user=User(email=email, password=password, name=name)
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({"user":"ok"})
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
