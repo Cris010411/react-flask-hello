@@ -18,6 +18,8 @@ import json
 ENV = os.getenv("FLASK_ENV")
 static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")
+jwt = JWTManager(app)
 app.url_map.strict_slashes = False
 
 # database condiguration
@@ -60,35 +62,25 @@ def sitemap():
 #     response.cache_control.max_age = 0 # avoid cache memory
 #     return response
 
-# #INICIO DE PROYECTO
-# @app.route("/login", methods=["POST"])
-# def login():
-#     email=request.json.get("email", None)
-#     password=request.json.get("password", None)
+#INICIO DE PROYECTO
+@app.route("/login", methods=["POST"])
+def login():
+    email=request.json.get("email", None)
+    password=request.json.get("password", None)
 
-#     user=User.query.filter_by(email=email, password=password).first()
-#     if user is None:
-#         return jsonify ({"message:" "Bad user or password"})
+    user=User.query.filter_by(email=email, password=password).first()
+    if user is None:
+        return jsonify ({"message:" "Bad user or password"})
 
-#     access_token = create_access_token(identity=user.id)
-#     return jsonify({"token": access_token})
+    access_token = create_access_token(identity=user.id)
+    return jsonify({"token": access_token})
 
-# @app.route("/protected", methods=["GET"])
-# @jwt_required()
-# def protected():
-#     current_user_id=get_jwt_identity()
-#     user=User.query.get(current_user_id)
-#     return jsonify({"id":user.id, "email":user.email})
-
-# @app.route("/createUser", methods=["POST"])
-# def create_User():
-#     email=request.json.get("email", None)
-#     password=request.json.get("password", None)
-#     name=request.json.get("name", None)
-#     user=User(email=email, password=password, name=name)
-#     db.session.add(user)
-#     db.session.commit()
-#     return jsonify({"user":"ok"})
+@app.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    current_user_id=get_jwt_identity()
+    user=User.query.get(current_user_id)
+    return jsonify({"id":user.id, "email":user.email})
 
 @app.route('/user', methods=['GET'])
 def getUser():
