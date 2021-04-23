@@ -96,6 +96,19 @@ def getUser():
     request = list(map(lambda user:user.serialize(),usuario))    
     return jsonify(request), 200
 
+@app.route('/user', methods=['POST']) 
+#se debe enviar la data como objeto
+def addUser():
+    data = request.get_json()
+    validacion = User.query.filter_by(email=data["email"]).first()
+    if validacion is None:
+        user1 = User(email=data["email"],password=data["password"],is_active=True)
+        db.session.add(user1)
+        db.session.commit()
+        return jsonify("Message : Se adiciono un usuario!"),200
+    else:
+        return jsonify({"error": "El usuario ya existe"}),420
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
