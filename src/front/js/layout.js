@@ -5,6 +5,8 @@ import ScrollToTop from "./component/scrollToTop";
 import { Home } from "./pages/home";
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
+import { Personal } from "./pages/personal";
+import { Register } from "./pages/register";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
@@ -18,6 +20,32 @@ const Layout = () => {
 
 	return (
 		<div className="d-flex flex-column h-100">
+			<BrowserRouter basename={basename}>
+				<Route exact path="/">
+					<Home />
+				</Route>
+				<Switch>
+					<Route exact path="/demo">
+						<Navbar />
+						<Demo />
+					</Route>
+					<Route exact path="/personal">
+						<Personal />
+					</Route>
+					<Route exact path="/register">
+						<Register />
+					</Route>
+				</Switch>
+				<Footer />
+			</BrowserRouter>
+		</div>
+	);
+};
+
+export default injectContext(Layout);
+
+{
+	/* <div className="d-flex flex-column h-100">
 			<BrowserRouter basename={basename}>
 				<ScrollToTop>
 					<Navbar />
@@ -38,8 +66,5 @@ const Layout = () => {
 					<Footer />
 				</ScrollToTop>
 			</BrowserRouter>
-		</div>
-	);
-};
-
-export default injectContext(Layout);
+		</div> */
+}
