@@ -68,12 +68,20 @@ def login():
     email=request.json.get("email", None)
     password=request.json.get("password", None)
 
+    if email is None:
+        return jsonify ({"message:" "Bad user or password"}),400
+    if password is None:
+        return jsonify ({"message:" "Bad user or password"}),400
+    #user=User.query.filter_by(email=email).first()
+    #if user:
+       # return jsonify ({"message:" "user already exist"}),401
+    
     user=User.query.filter_by(email=email, password=password).first()
     if user is None:
-        return jsonify ({"message:" "Bad user or password"})
-
-    access_token = create_access_token(identity=user.id)
-    return jsonify({"token": access_token})
+        return jsonify ({"message:" "Bad user or password"}),401
+    else:
+        access_token = create_access_token(identity=user.id)
+        return jsonify({"token": access_token}),200
 
 @app.route("/protected", methods=["GET"])
 @jwt_required()
